@@ -90,7 +90,7 @@ arraylistf_t *arraylistf_new(
     alist_in_t *list;
 
     alist = calloc(1, sizeof(arraylistf_t));
-    list = calloc(1, sizeof(alist_in_t));
+    alist->in = list = calloc(1, sizeof(alist_in_t));
 
     list->arraySize = INITIALCAPACITY;
     alist->array = calloc(list->arraySize, sizeof(void *));
@@ -104,6 +104,7 @@ arraylistf_t *arraylistf_new(
     list->openslotHeap = tea_heap_initalloc(&objOSI);
 #endif
 
+    return alist;
 }
 
 /* enlarge according to this proposed index. */
