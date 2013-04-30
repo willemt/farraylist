@@ -40,13 +40,13 @@ typedef struct
     int arraySize;
     int count;
 
-//    tea_object_t obj;
 //    tea_arrayqueue_t *openslotQueue;
+
 #if HEAP_AVAILABLE
-//    tea_heap_t *openslotHeap;
+    tea_heap_t *openslotHeap;
 #endif
 
-//    tea_hashmap_t *hash;        // special special case
+//    tea_hashmap_t *hash;
 //    tea_arrayqueue_t *hashslotQueue;
 } alist_in_t;
 
@@ -64,7 +64,6 @@ typedef struct
 #endif
 
 #if HEAP_AVAILABLE
-
 /**
  * for managing open slots */
 typedef struct
@@ -72,7 +71,7 @@ typedef struct
     int idx;
 } openslot_item_t;
 
-static int openslot_compare(
+static int __openslot_compare(
     const void *e1,
     const void *e2
 )
@@ -83,7 +82,7 @@ static int openslot_compare(
 }
 #endif
 
-arraylistf_t *arraylistf_new(
+arraylistf_t *arraylistf_new(unsigned int initial_capacity
 )
 {
     arraylistf_t *alist;
@@ -92,7 +91,7 @@ arraylistf_t *arraylistf_new(
     alist = calloc(1, sizeof(arraylistf_t));
     alist->in = list = calloc(1, sizeof(alist_in_t));
 
-    list->arraySize = INITIALCAPACITY;
+    list->arraySize = initial_capacity;
     alist->array = calloc(list->arraySize, sizeof(void *));
 
 #if HASHMAP_AVAILABLE
@@ -166,7 +165,7 @@ inline static void *__hashslot_wrap(
         hslot = tea_arrayqueue_poll(in(alist)->hashslotQueue);
 
         if (!hslot)
-            hslot = tea_malloc(sizeof(hashslot_item_t));
+            hslot = malloc(sizeof(hashslot_item_t));
 
         hslot->data = item;
         hslot->idx = idx;
@@ -324,7 +323,7 @@ void *arraylistf_remove(
     openslot_item_t *ositem;
 
     /* goto the REMOVE-HEAP.. */
-    ositem = tea_malloc(sizeof(openslot_item_t));
+    ositem = malloc(sizeof(openslot_item_t));
     /* ..idx so we can remember it */
     ositem->idx = idx;
     tea_heap_offer(in(alist)->openslotHeap, ositem);
@@ -440,10 +439,6 @@ void arraylistf_free(
     arraylistf_t * alist
 )
 {
-    alist_in_t *list = alist->in;
-
-    arraylistf_free(alist);
-
 #if HASHMAP_AVAILABLE
     if (list->hash)
         tea_hashmap_freeall(list->hash);
@@ -452,6 +447,10 @@ void arraylistf_free(
 #if HEAP_AVAILABLE
     tea_heap_freeall(list->openslotHeap);
 #endif
+
+    free(alist->in);
+    free(alist->array);
+    free(alist);
 }
 
 /**
@@ -581,7 +580,7 @@ static void __hashslots_init(
     assert(size == tea_hashmap_size(in(alist)->hash));
 }
 
-void *arraylistf_remove_Item(
+void *arraylistf_remove_item(
     arraylistf_t * alist,
     const void *key
 )
