@@ -89,5 +89,6 @@ int farraylist_item_index(
     farraylist_t * alist,
     const void *key
 );
+#endif
 
 #endif /* FIXED_ARRAYLIST_H */
