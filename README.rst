@@ -1,2 +1,2 @@
 
-.. figure:: doc/farraylist.png
+.. figure:: doc/farraylist.svg
