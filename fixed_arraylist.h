@@ -1,71 +1,93 @@
+#ifndef FIXED_ARRAYLIST_H
+#define FIXED_ARRAYLIST_H
 
 typedef struct
 {
     int arraySize;
     void *in;
     void **array;
-} arraylistf_t;
+} farraylist_t;
 
 
-arraylistf_t *arraylistf_new(
-);
+farraylist_t *farraylist_new();
 
-void arraylistf_insert(
-    arraylistf_t * alist,
+/**
+ * Insert item at index */
+void farraylist_insert(
+    farraylist_t * alist,
     void *item,
     const int idx
 );
 
-int arraylistf_get_arraysize(
-    arraylistf_t * alist
+/**
+ *  @return size of memory used
+ */
+int farraylist_get_size(
+    farraylist_t * alist
 );
 
-void *arraylistf_get(
-    arraylistf_t * alist,
+/**
+ * @return the object at this index. */
+void *farraylist_get(
+    farraylist_t * alist,
     const int idx
 );
 
-void *arraylistf_remove(
-    arraylistf_t * alist,
+/**
+ * Remove and return the entry marked by idx. */
+void *farraylist_remove(
+    farraylist_t * alist,
     const int idx
 );
 
-int arraylistf_add(
-    arraylistf_t * alist,
+/**
+ * Add this object to this alist.
+ * @return the idx we added to. */
+int farraylist_add(
+    farraylist_t * alist,
     void *item
 );
 
-void arraylistf_clear(
-    arraylistf_t * alist
+/**
+ * Empty this arraylist. */
+void farraylist_clear(
+    farraylist_t * alist
 );
 
-void arraylistf_free(
-    arraylistf_t * alist
+/**
+ * Free the memory used by this alist. */
+void farraylist_free(
+    farraylist_t * alist
 );
 
-int arraylistf_count(
-    arraylistf_t * alist
+/**
+ * @return number of items in this arraylist */
+int farraylist_count(
+    farraylist_t * alist
 );
 
 #if 0
-int arraylistf_contains(
-    arraylistf_t * alist,
+int farraylist_contains(
+    farraylist_t * alist,
     const void *key
 );
 
-void *arraylistf_get_item(
-    arraylistf_t * alist,
+void *farraylist_get_item(
+    farraylist_t * alist,
     const void *key
 );
 
 
-void *arraylistf_remove_Item(
-    arraylistf_t * alist,
+void *farraylist_remove_item(
+    farraylist_t * alist,
     const void *key
 );
 
-int arraylistf_item_index(
-    arraylistf_t * alist,
+/** Whats the array index of this item? 
+ * @returns -1 if item doesn't exist */
+int farraylist_item_index(
+    farraylist_t * alist,
     const void *key
 );
-#endif
+
+#endif /* FIXED_ARRAYLIST_H */

@@ -27,9 +27,9 @@ void Testfixedarraylist_new(
     CuTest * tc
 )
 {
-    arraylistf_t *hp;
+    farraylist_t *hp;
 
-    hp = arraylistf_new(10);
+    hp = farraylist_new(10);
 
-    CuAssertTrue(tc, 0 == arraylistf_count(hp));
+    CuAssertTrue(tc, 0 == farraylist_count(hp));
 }

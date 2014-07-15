@@ -82,13 +82,13 @@ static int __openslot_compare(
 }
 #endif
 
-arraylistf_t *arraylistf_new(unsigned int initial_capacity
+farraylist_t *farraylist_new(unsigned int initial_capacity
 )
 {
-    arraylistf_t *alist;
+    farraylist_t *alist;
     alist_in_t *list;
 
-    alist = calloc(1, sizeof(arraylistf_t));
+    alist = calloc(1, sizeof(farraylist_t));
     alist->in = list = calloc(1, sizeof(alist_in_t));
 
     list->arraySize = initial_capacity;
@@ -108,7 +108,7 @@ arraylistf_t *arraylistf_new(unsigned int initial_capacity
 
 /* enlarge according to this proposed index. */
 static void __ensurecap(
-    arraylistf_t * alist,
+    farraylist_t * alist,
     int idx
 )
 {
@@ -139,7 +139,7 @@ static void __ensurecap(
         array_new[ii] = alist->array[ii];
     }
 
-    assert(cnt == arraylistf_count(alist));
+    assert(cnt == farraylist_count(alist));
 
     free(alist->array);
     alist->array = array_new;
@@ -152,7 +152,7 @@ static void __ensurecap(
  * we can decide to use hashslots or not here. */
 #if HASHMAP_AVAILABLE
 inline static void *__hashslot_wrap(
-    arraylistf_t * alist,
+    farraylist_t * alist,
     int idx,
     void *item
 )
@@ -179,10 +179,8 @@ inline static void *__hashslot_wrap(
 }
 #endif
 
-/**
- * Insert item at index */
-void arraylistf_insert(
-    arraylistf_t * alist,
+void farraylist_insert(
+    farraylist_t * alist,
     void *item,
     const int idx
 )
@@ -198,7 +196,7 @@ void arraylistf_insert(
     /* OPTIONAL: add to HASHMAP */
     if (list->hash)
     {
-        /* ONLY FROM DIRECT arraylistf_insert calls, in case we overwrite.. */
+        /* ONLY FROM DIRECT farraylist_insert calls, in case we overwrite.. */
         if (alist->array[idx])
         {
             void *hslot;
@@ -235,7 +233,7 @@ void arraylistf_insert(
 #if HASHMAP_AVAILABLE
     if (list->hash)
     {
-        assert(tea_hashmap_size(in(alist)->hash) == arraylistf_count(alist));
+        assert(tea_hashmap_size(in(alist)->hash) == farraylist_count(alist));
     }
 #endif
 }
@@ -244,7 +242,7 @@ void arraylistf_insert(
  * Is this probe valid?
  * @returns 1 on valid, 0 otherwise. */
 inline static int __probecheck(
-    arraylistf_t * alist,
+    farraylist_t * alist,
     int idx
 )
 {
@@ -259,20 +257,15 @@ inline static int __probecheck(
     return 1;
 }
 
-/**
- *  @return size of memory used
- */
-int arraylistf_get_arraysize(
-    arraylistf_t * alist
+int farraylist_get_size(
+    farraylist_t * alist
 )
 {
     return in(alist)->arraySize;
 }
 
-/**
- * @return the object at this index. */
-void *arraylistf_get(
-    arraylistf_t * alist,
+void *farraylist_get(
+    farraylist_t * alist,
     const int idx
 )
 {
@@ -284,9 +277,8 @@ void *arraylistf_get(
     return alist->array[idx];
 }
 
-/** remove and return the entry marked by idx. */
-void *arraylistf_remove(
-    arraylistf_t * alist,
+void *farraylist_remove(
+    farraylist_t * alist,
     const int idx
 )
 {
@@ -309,7 +301,7 @@ void *arraylistf_remove(
     {
         hashslot_item_t *hslot;
 
-        assert(tea_hashmap_size(in(alist)->hash) == arraylistf_count(alist));
+        assert(tea_hashmap_size(in(alist)->hash) == farraylist_count(alist));
 
         hslot = tea_hashmap_remove(in(alist)->hash, tmp);
         assert(hslot);
@@ -337,16 +329,14 @@ void *arraylistf_remove(
 #if HASHMAP_AVAILABLE
     if (in(alist)->hash)
     {
-        assert(tea_hashmap_size(in(alist)->hash) == arraylistf_count(alist));
+        assert(tea_hashmap_size(in(alist)->hash) == farraylist_count(alist));
     }
 #endif
     return tmp;
 }
 
-/** Add this object to this alist.
- * @return the idx we added to. */
-int arraylistf_add(
-    arraylistf_t * alist,
+int farraylist_add(
+    farraylist_t * alist,
     void *item
 )
 {
@@ -415,14 +405,13 @@ int arraylistf_add(
      * #endif
      */
 
-    arraylistf_insert(alist, item, idx);
+    farraylist_insert(alist, item, idx);
 
     return idx;
 }
 
-/** Empty this arraylist. */
-void arraylistf_clear(
-    arraylistf_t * alist
+void farraylist_clear(
+    farraylist_t * alist
 )
 {
     int ii;
@@ -434,9 +423,8 @@ void arraylistf_clear(
     in(alist)->count = 0;
 }
 
-/** Free the memory used by this alist. */
-void arraylistf_free(
-    arraylistf_t * alist
+void farraylist_free(
+    farraylist_t * alist
 )
 {
 #if HASHMAP_AVAILABLE
@@ -453,10 +441,8 @@ void arraylistf_free(
     free(alist);
 }
 
-/**
- * @return number of items in this arraylist */
-int arraylistf_count(
-    arraylistf_t * alist
+int farraylist_count(
+    farraylist_t * alist
 )
 {
     assert(alist);
@@ -466,7 +452,7 @@ int arraylistf_count(
 /*------------------------------------------------------------------- HASHING */
 #if HASHMAP_AVAILABLE
 static void __alist_makehashtable(
-    arraylistf_t * alist
+    farraylist_t * alist
 )
 {
     alist_in_t *list = alist->in;
@@ -482,7 +468,7 @@ static void __alist_makehashtable(
 
     int end;
 
-    end = arraylistf_get_arraysize(alist);
+    end = farraylist_get_arraysize(alist);
     for (ii = 0; ii < end; ii++)
     {
         void *tmp;
@@ -496,8 +482,8 @@ static void __alist_makehashtable(
 
 /** Is this item, represented by key inside this arraylist?
  * @returns 1 if it is, otherwise 0 (also 0 if the object doesn't have a hash code */
-int arraylistf_contains(
-    arraylistf_t * alist,
+int farraylist_contains(
+    farraylist_t * alist,
     const void *key
 )
 {
@@ -525,8 +511,8 @@ int arraylistf_contains(
      */
 }
 
-void *arraylistf_get_item(
-    arraylistf_t * alist,
+void *farraylist_get_item(
+    farraylist_t * alist,
     const void *key
 )
 {
@@ -559,7 +545,7 @@ void *arraylistf_get_item(
 
 /** Init this hashslotQueue and rebuild the hash table. */
 static void __hashslots_init(
-    arraylistf_t * alist
+    farraylist_t * alist
 )
 {
     in(alist)->hashslotQueue = tea_arrayqueue_initalloc(NULL);
@@ -580,8 +566,8 @@ static void __hashslots_init(
     assert(size == tea_hashmap_size(in(alist)->hash));
 }
 
-void *arraylistf_remove_item(
-    arraylistf_t * alist,
+void *farraylist_remove_item(
+    farraylist_t * alist,
     const void *key
 )
 {
@@ -610,7 +596,7 @@ void *arraylistf_remove_item(
 //              tea_arrayqueue_offer(list->hashslotQueue,hslot); // put back in hashslot bucket
 //              list->count--;
 //              return hslot->data;
-        return arraylistf_remove(alist, hslot->idx);
+        return farraylist_remove(alist, hslot->idx);
 
         /* straight up linear compare */
     }
@@ -620,11 +606,11 @@ void *arraylistf_remove_item(
 
         for (ii = 0; ii < list->arraySize; ii++)
         {
-            void *obj = arraylistf_get(alist, ii);
+            void *obj = farraylist_get(alist, ii);
 
             if (obj && 0 == list->obj.compare(key, obj))
             {
-                return arraylistf_remove(alist, ii);
+                return farraylist_remove(alist, ii);
             }
         }
 
@@ -638,11 +624,11 @@ void *arraylistf_remove_item(
 
         for (ii = 0; ii < list->arraySize; ii++)
         {
-            void *obj = arraylistf_get(alist, ii);
+            void *obj = farraylist_get(alist, ii);
 
             if (obj && key == obj)
             {
-                return arraylistf_remove(alist, ii);
+                return farraylist_remove(alist, ii);
             }
         }
     }
@@ -650,10 +636,8 @@ void *arraylistf_remove_item(
     return NULL;
 }
 
-/** Whats the array index of this item? 
- * @returns -1 if item doesn't exist */
-int arraylistf_item_index(
-    arraylistf_t * alist,
+int farraylist_item_index(
+    farraylist_t * alist,
     const void *key
 )
 {
